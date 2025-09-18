@@ -2,11 +2,11 @@ import { fetchGenres, fetchMoviesByGenre } from "@/services/movies";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
-import type { Genre, Movie } from "@/types";
+import type { Genre } from "@/types";
 import { Button } from "./ui/button";
 import { motion } from "motion/react";
-import Moviecard from "./moviecard";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import MovieList from "./MovieList";
 
 export default function Genrefilter() {
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
@@ -127,26 +127,26 @@ export default function Genrefilter() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center min-h-[800px] md:min-h-[760px]">
-          {isFetching
-            ? Array.from({ length: 20 }).map((_, index) => (
-                <div key={index} className="w-full h-auto">
-                  <div className="relative aspect-[2/3] overflow-hidden">
-                    <Skeleton className="w-full h-full" />
-                    <div className="absolute top-2 right-2">
-                      <Skeleton className="h-6 w-12 rounded-md" />
-                    </div>
-                    <div className="mt-2">
-                      <Skeleton className="h-4 w-full bg-white" />
-                    </div>
+      <div className="">
+        {isFetching ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center min-h-[800px] md:min-h-[760px]">
+            {Array.from({ length: 20 }).map((_, index) => (
+              <div key={index} className="w-full h-auto">
+                <div className="relative aspect-[2/3] overflow-hidden">
+                  <Skeleton className="w-full h-full" />
+                  <div className="absolute top-2 right-2">
+                    <Skeleton className="h-6 w-12 rounded-md" />
+                  </div>
+                  <div className="mt-2">
+                    <Skeleton className="h-4 w-full bg-white" />
                   </div>
                 </div>
-              ))
-            : movieByGenres.results.map((movie: Movie) => (
-                <div key={movie.id}>
-                  <Moviecard movie={movie} />
-                </div>
-              ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <MovieList movieResults={movieByGenres.results} />
+        )}
       </div>
       <div className="flex items-center justify-center gap-2 my-8">
         <Button
@@ -181,6 +181,12 @@ export default function Genrefilter() {
           <ChevronsRight className="h-4 w-4" />
         </Button>
       </div>
+          {movieByGenres && movieByGenres.results.length > 0 && (
+            <div className="text-center text-sm text-muted-foreground">
+              Showing {(page - 1) * 20 + 1}-{Math.min(page * 20, movieByGenres.total_results)} of{" "}
+              {movieByGenres.total_results} movies
+            </div>
+          )}
     </div>
   );
 }
