@@ -1,0 +1,160 @@
+// src/services/movieServices.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fetchGenres, fetchMoviesByGenre } from './movies';
+
+// Mock sessionStorage
+const mockSessionStorage = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+};
+
+// Mock fetch globally
+vi.spyOn(global, 'fetch').mockImplementation(() => Promise.resolve({} as Response));
+
+// Mock sessionStorage on the global object
+Object.defineProperty(window, 'sessionStorage', {
+  value: mockSessionStorage,
+  writable: true,
+});
+
+describe('Movie Services', () => {
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockSessionStorage.getItem.mockReturnValue(null);
+  vi.spyOn(global, 'fetch').mockReset();
+});
+
+  describe('fetchGenres', () => {
+    const mockGenresData = {
+      genres: [
+        { id: 28, name: 'Action' },
+        { id: 12, name: 'Adventure' },
+      ],
+    };
+
+    it('should fetch genres from API and cache them when no cache exists', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockGenresData,
+      } as Response);
+
+      const result = await fetchGenres();
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/genre/movie/list',
+        {
+          headers: {
+            Authorization: expect.stringContaining('Bearer '), // Partial match for key
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
+        'movieGenres',
+        JSON.stringify(mockGenresData.genres)
+      );
+      expect(result).toEqual(mockGenresData.genres);
+    });
+
+    it('should return cached genres when available', async () => {
+      const cachedData = JSON.stringify(mockGenresData.genres);
+      mockSessionStorage.getItem.mockReturnValue(cachedData);
+
+      const result = await fetchGenres();
+
+      expect(mockSessionStorage.getItem).toHaveBeenCalledWith('movieGenres');
+      expect(global.fetch).not.toHaveBeenCalled();
+      expect(result).toEqual(mockGenresData.genres);
+    });
+
+    it('should throw error on HTTP error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      } as Response);
+
+      await expect(fetchGenres()).rejects.toThrow('HTTP error! status: 401');
+      expect(mockSessionStorage.setItem).not.toHaveBeenCalled();
+    });
+
+    it('should log and rethrow network error', async () => {
+      const mockError = new Error('Network failure');
+      global.fetch.mockRejectedValueOnce(mockError);
+
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await expect(fetchGenres()).rejects.toThrow('Network failure');
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching genres:', mockError);
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('fetchMoviesByGenre', () => {
+    const mockMoviesData = {
+      results: [
+        { id: 1, title: 'Test Movie 1' },
+        { id: 2, title: 'Test Movie 2' },
+      ],
+      page: 1,
+    };
+
+    it('should fetch movies with selected genres and return data', async () => {
+      const params = { selectedGenres: [28, 12], page: 1 };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockMoviesData,
+      } as Response);
+
+      const result = await fetchMoviesByGenre(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&with_genres=28,12&page=1',
+        {
+          headers: {
+            Authorization: expect.stringContaining('Bearer '),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      expect(result).toEqual(mockMoviesData);
+    });
+
+    it('should fetch movies without genre filter when none selected', async () => {
+      const params = { selectedGenres: [], page: 2 };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockMoviesData,
+      } as Response);
+
+      const result = await fetchMoviesByGenre(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&page=2',
+        expect.any(Object)
+      );
+      expect(result).toEqual(mockMoviesData);
+    });
+
+    it('should throw error on HTTP error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const params = { selectedGenres: [28], page: 1 };
+      await expect(fetchMoviesByGenre(params)).rejects.toThrow('HTTP error! status: 500');
+    });
+
+    it('should log and rethrow network error', async () => {
+      const mockError = new Error('Fetch failed');
+      global.fetch.mockRejectedValueOnce(mockError);
+
+      const params = { selectedGenres: [28], page: 1 };
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await expect(fetchMoviesByGenre(params)).rejects.toThrow('Fetch failed');
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching movies:', mockError);
+      consoleSpy.mockRestore();
+    });
+  });
+});
