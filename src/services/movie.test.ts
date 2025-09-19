@@ -1,6 +1,6 @@
 // src/services/movieServices.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchGenres, fetchMoviesByGenre } from './movies';
+import { fetchGenres, fetchMoviesByGenre, searchMovies } from './movies';
 
 // Mock sessionStorage
 const mockSessionStorage = {
@@ -18,11 +18,11 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 describe('Movie Services', () => {
-beforeEach(() => {
-  vi.clearAllMocks();
-  mockSessionStorage.getItem.mockReturnValue(null);
-  vi.spyOn(global, 'fetch').mockReset();
-});
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSessionStorage.getItem.mockReturnValue(null);
+    vi.spyOn(global, 'fetch').mockReset();
+  });
 
   describe('fetchGenres', () => {
     const mockGenresData = {
@@ -155,6 +155,133 @@ beforeEach(() => {
       await expect(fetchMoviesByGenre(params)).rejects.toThrow('Fetch failed');
       expect(consoleSpy).toHaveBeenCalledWith('Error fetching movies:', mockError);
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe('searchMovies', () => {
+    const mockSearchData = {
+      results: [
+        { id: 1, title: 'Avengers: Endgame', overview: 'Epic superhero movie' },
+        { id: 2, title: 'Avengers: Infinity War', overview: 'Another epic movie' },
+      ],
+      total_pages: 5,
+      total_results: 100,
+      page: 1,
+    };
+
+    it('should search movies with query and default page', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSearchData,
+      } as Response);
+
+      const result = await searchMovies('avengers');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/search/movie?query=avengers&page=1',
+        {
+          headers: {
+            Authorization: expect.stringContaining('Bearer '),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      expect(result).toEqual(mockSearchData);
+    });
+
+    it('should search movies with query and specific page', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSearchData,
+      } as Response);
+
+      const result = await searchMovies('spider-man', 2);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/search/movie?query=spider-man&page=2',
+        {
+          headers: {
+            Authorization: expect.stringContaining('Bearer '),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      expect(result).toEqual(mockSearchData);
+    });
+
+    it('should encode special characters in query', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockSearchData,
+      } as Response);
+
+      const result = await searchMovies('fast & furious');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.themoviedb.org/3/search/movie?query=fast%20%26%20furious&page=1',
+        expect.any(Object)
+      );
+      expect(result).toEqual(mockSearchData);
+    });
+
+    it('should return empty results for empty query', async () => {
+      const result = await searchMovies('');
+
+      expect(global.fetch).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        results: [],
+        total_pages: 0,
+        total_results: 0,
+      });
+    });
+
+    it('should return empty results for whitespace-only query', async () => {
+      const result = await searchMovies('   ');
+
+      expect(global.fetch).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        results: [],
+        total_pages: 0,
+        total_results: 0,
+      });
+    });
+
+    it('should throw error on HTTP error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+
+      await expect(searchMovies('nonexistent')).rejects.toThrow('HTTP error! status: 404');
+    });
+
+    it('should log and rethrow network error', async () => {
+      const mockError = new Error('Network failure');
+      global.fetch.mockRejectedValueOnce(mockError);
+
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await expect(searchMovies('test')).rejects.toThrow('Network failure');
+      expect(consoleSpy).toHaveBeenCalledWith('Error searching movies:', mockError);
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle API rate limiting error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+      } as Response);
+
+      await expect(searchMovies('popular movie')).rejects.toThrow('HTTP error! status: 429');
+    });
+
+    it('should handle unauthorized error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      } as Response);
+
+      await expect(searchMovies('test')).rejects.toThrow('HTTP error! status: 401');
     });
   });
 });

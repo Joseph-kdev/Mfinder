@@ -8,16 +8,28 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
-  const [clicked, setClicked] = useState<Movie | null>(null);
   const ref = useRef(null);
   const [hoveredMovie, setHoveredMovie] = useState<number | null>(null);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  useOnClickOutside(ref, () => setClicked(null));
+  useOnClickOutside(ref, () => setSelectedMovie(null));
+
+  // Function to determine if a movie card should be positioned to the left
+  const shouldPositionLeft = (index: number) => {
+    // Get current grid columns based on screen size
+    // This matches the grid-cols classes: grid-cols-2 sm:grid-cols-4 md:grid-cols-5
+    const screenWidth = window.innerWidth;
+    let cols = 2; // default mobile
+    if (screenWidth >= 768) cols = 5; // md and up
+    else if (screenWidth >= 640) cols = 4; // sm and up
+    
+    // Check if this is in the rightmost column
+    return (index + 1) % cols === 0;
+  };
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center min-h-[800px] md:min-h-[760px]">
-      {movieResults.map((movie: Movie) => (
+    <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center">
+      {movieResults.map((movie: Movie, index: number) => (
         <div key={movie.id} className="relative">
           <motion.div
             className="cursor-pointer"
@@ -59,7 +71,9 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                   animate={{ opacity: 1, width: "400px" }}
                   exit={{ opacity: 0, width: "400px" }}
                   transition={{ duration: 0.3 }}
-                  className="absolute top-0 z-20 p-4 rounded-lg bg-card border border-border shadow-2xl hidden lg:block"
+                  className={`absolute top-0 z-20 p-4 rounded-lg bg-card border border-border shadow-2xl hidden lg:block ${
+                    shouldPositionLeft(index) ? 'right-0' : 'left-0'
+                  }`}
                 >
                   <div className="flex gap-4 items-start max-w-[400px] relative">
                     <div className="min-w-[120px] relative">
