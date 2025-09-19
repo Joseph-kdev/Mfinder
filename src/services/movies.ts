@@ -55,3 +55,28 @@ export const fetchMoviesByGenre = async ({
     throw error;
   }
 };
+
+export const searchMovies = async (query: string, page: number = 1) => {
+  if (!query.trim()) {
+    return { results: [], total_pages: 0, total_results: 0 };
+  }
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/search/movie?query=${encodeURIComponent(query)}&page=${page}`,
+      {
+        headers: header,
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Error searching movies:", error);
+    throw error;
+  }
+};
