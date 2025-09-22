@@ -53,7 +53,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                 src={
                   movie.poster_path
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                    : `https://placehold.co/600x400/1a1a1a/FFFFFF.png`
+                    : `https://placehold.co/400x600/1a1a1a/FFFFFF.png`
                 }
                 alt={movie.title}
                 onClick={() => setSelectedMovie(movie)}
@@ -88,7 +88,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                         src={
                           movie.poster_path
                             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                            : `https://placehold.co/600x400/1a1a1a/FFFFFF.png`
+                            : `https://placehold.co/400x600/1a1a1a/FFFFFF.png`
                         }
                         alt={movie.title}
                       />
@@ -154,7 +154,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                     src={
                       selectedMovie.poster_path
                         ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
-                        : `https://placehold.co/600x400/1a1a1a/FFFFFF.png`
+                        : `https://placehold.co/400x600/1a1a1a/FFFFFF.png`
                     }
                     alt={selectedMovie.title}
                     className="w-full h-64 object-cover object-top rounded-lg"

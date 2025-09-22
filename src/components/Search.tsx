@@ -43,7 +43,7 @@ export default function SearchDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="!max-w-5xl !w-[calc(100%-2rem)] sm:!w-[calc(100%-4rem)] h-[90vh] overflow-hidden flex flex-col mx-auto p-1 md:p-4 no-scrollbar">
         <DialogHeader>
-          <DialogTitle className="text-center">Search</DialogTitle>
+          <DialogTitle className="text-center font-RubikDirt text-2xl">Search</DialogTitle>
         </DialogHeader>
 
         <div className="relative max-w-4xl mx-auto px-4 2xl:px-0 w-full">
