@@ -1,8 +1,8 @@
-import { useState } from "react";
 import Genrefilter from "@/components/GenreFilter";
-import Navbar from "../components/navbar";
-import Searchbar from "../components/searchbar";
-import Search from "@/components/Search";
+import Navbar from "@/components/navbar";
+import Searchbar from "@/components/searchbar";
+import { Search } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Home() {
       </div>
       <Genrefilter />
       
-      <Search 
+      <Search
         open={isSearchDialogOpen} 
         onOpenChange={setIsSearchDialogOpen} 
       />
