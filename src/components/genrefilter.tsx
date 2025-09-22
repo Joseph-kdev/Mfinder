@@ -96,12 +96,12 @@ export default function Genrefilter() {
           >
             {isLoading ? (
               <div className="flex gap-2">
-                <Skeleton className="h-5 min-w-[60px] bg-amber-500" />
-                <Skeleton className="h-5 min-w-[80px] bg-amber-500" />
-                <Skeleton className="h-5 min-w-[100px] bg-amber-500" />
-                <Skeleton className="h-5 min-w-[50px] bg-amber-500" />
-                <Skeleton className="h-5 min-w-[50px] bg-amber-500" />
-                <Skeleton className="h-5 min-w-[150px] bg-amber-500" />
+                <Skeleton className="h-8 min-w-[60px]" />
+                <Skeleton className="h-8 min-w-[80px] bg-muted" />
+                <Skeleton className="h-8 min-w-[100px]" />
+                <Skeleton className="h-8 min-w-[50px]" />
+                <Skeleton className="h-8 min-w-[50px]" />
+                <Skeleton className="h-8 min-w-[150px]" />
               </div>
             ) : isError ? (
               <p>"Error fetching genres"</p>
@@ -117,7 +117,7 @@ export default function Genrefilter() {
                       ? "#a3dcbc"
                       : "",
                   } as React.CSSProperties}
-                  className="wavy-fade"
+                  className="wavy-fade font-TiltNeon"
                 >
                   {genre.name}
                 </Button>
