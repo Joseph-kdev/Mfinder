@@ -13,7 +13,6 @@ export interface Movie {
     genre_ids: number[];
 }
 
-// Extended interface for detailed movie information from TMDB API
 export interface MovieDetails extends Movie {
   runtime: number;
   genres: Genre[];

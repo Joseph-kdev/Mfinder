@@ -11,8 +11,17 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
   const ref = useRef(null);
   const [hoveredMovie, setHoveredMovie] = useState<number | null>(null);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
 
   useOnClickOutside(ref, () => setSelectedMovie(null));
+
+  const handleImageLoad = (movieId: number) => {
+    setLoadedImages(prev => new Set([...prev, movieId]));
+  };
+
+  const handleImageError = (movieId: number) => {
+    setLoadedImages(prev => new Set([...prev, movieId]));
+  };
 
   const shouldPositionLeft = (index: number) => {
     const screenWidth = window.innerWidth;
@@ -38,15 +47,17 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
               exit={{ opacity: 0 }}
               className="w-full h-full"
             >
-              <motion.div
-                layoutId={`movie-rating-${movie.id}`}
-                className="flex items-center gap-1 absolute top-2 left-2 z-10 bg-black/70 text-white px-2 py-1 rounded-md text-xs"
-              >
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <p className="text-yellow-400">
-                  {movie.vote_average.toFixed(1)}
-                </p>
-              </motion.div>
+              {loadedImages.has(movie.id) && (
+                <motion.div
+                  layoutId={`movie-rating-${movie.id}`}
+                  className="flex items-center gap-1 absolute top-2 left-2 z-10 bg-black/70 text-white px-2 py-1 rounded-md text-xs"
+                >
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <p className="text-yellow-400">
+                    {movie.vote_average.toFixed(1)}
+                  </p>
+                </motion.div>
+              )}
               <motion.img
                 layoutId={`movie-img-${movie.id}`}
                 className="w-full h-full object-cover rounded-lg"
@@ -56,6 +67,8 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                     : `https://placehold.co/400x600/1a1a1a/FFFFFF.png`
                 }
                 alt={movie.title}
+                onLoad={() => handleImageLoad(movie.id)}
+                onError={() => handleImageError(movie.id)}
                 onClick={() => setSelectedMovie(movie)}
               />
             </motion.div>
@@ -73,15 +86,17 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                 >
                   <div className="flex gap-4 items-start max-w-[400px] relative">
                     <div className="min-w-[120px] relative">
-                      <motion.div
-                        layoutId={`movie-rating-${movie.id}`}
-                        className="flex items-center gap-1 absolute -top-2 -right-2 z-10 bg-black/70 text-white px-2 py-1 rounded-md text-xs"
-                      >
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <p className="text-yellow-400">
-                          {movie.vote_average.toFixed(1)}
-                        </p>
-                      </motion.div>
+                      {loadedImages.has(movie.id) && (
+                        <motion.div
+                          layoutId={`movie-rating-${movie.id}`}
+                          className="flex items-center gap-1 absolute -top-2 -right-2 z-10 bg-black/70 text-white px-2 py-1 rounded-md text-xs"
+                        >
+                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <p className="text-yellow-400">
+                            {movie.vote_average.toFixed(1)}
+                          </p>
+                        </motion.div>
+                      )}
                       <motion.img
                         className="w-full h-[200px] object-cover rounded-lg"
                         layoutId={`movie-img-${movie.id}`}
@@ -91,6 +106,8 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                             : `https://placehold.co/400x600/1a1a1a/FFFFFF.png`
                         }
                         alt={movie.title}
+                        onLoad={() => handleImageLoad(movie.id)}
+                        onError={() => handleImageError(movie.id)}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
