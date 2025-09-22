@@ -37,7 +37,7 @@ vi.mock('react-spinners', () => ({
 // Mock motion components
 vi.mock('motion/react', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }) => <div {...props}>{children}</div>,
   },
 }));
 
