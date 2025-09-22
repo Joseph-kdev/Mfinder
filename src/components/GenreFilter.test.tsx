@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Genrefilter from './GenreFilter';
+import Genrefilter from './genrefilter';
 import * as moviesService from '@/services/movies';
 import type { Genre } from '@/types';
 import type { Movie } from '@/types';
