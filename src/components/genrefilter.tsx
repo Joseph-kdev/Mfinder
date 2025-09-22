@@ -76,7 +76,7 @@ export default function Genrefilter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 2xl:p-0 min-h-screen">
+    <div className="max-w-5xl mx-auto px-4 2xl:p-0 min-h-screen">
       <div className="flex gap-2 mt-4 items-center">
         <div className="">
           <p className="min-w-[120px]">Pick by genres:</p>
@@ -116,7 +116,7 @@ export default function Genrefilter() {
                     backgroundColor: selectedGenres.includes(genre.id)
                       ? "#a3dcbc"
                       : "",
-                  }}
+                  } as React.CSSProperties}
                   className="wavy-fade"
                 >
                   {genre.name}

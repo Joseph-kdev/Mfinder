@@ -14,28 +14,23 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
 
   useOnClickOutside(ref, () => setSelectedMovie(null));
 
-  // Function to determine if a movie card should be positioned to the left
   const shouldPositionLeft = (index: number) => {
-    // Get current grid columns based on screen size
-    // This matches the grid-cols classes: grid-cols-2 sm:grid-cols-4 md:grid-cols-5
     const screenWidth = window.innerWidth;
-    let cols = 2; // default mobile
-    if (screenWidth >= 768) cols = 5; // md and up
-    else if (screenWidth >= 640) cols = 4; // sm and up
+    let cols = 2; 
+    if (screenWidth >= 768) cols = 5; 
+    else if (screenWidth >= 640) cols = 4; 
     
-    // Check if this is in the rightmost column
     return (index + 1) % cols === 0;
   };
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center">
+    <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4 justify-items-center">
       {movieResults.map((movie: Movie, index: number) => (
         <div key={movie.id} className="relative">
           <motion.div
             className="cursor-pointer"
             onHoverStart={() => setHoveredMovie(movie.id)}
             onHoverEnd={() => setHoveredMovie(null)}
-            onClick={() => setSelectedMovie(movie)}
             layout
           >
             <motion.div
@@ -61,6 +56,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                     : `https://placehold.co/600x400/1a1a1a/FFFFFF.png`
                 }
                 alt={movie.title}
+                onClick={() => setSelectedMovie(movie)}
               />
             </motion.div>
 
@@ -87,7 +83,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                         </p>
                       </motion.div>
                       <motion.img
-                        className="w-full h-[180px] object-cover rounded-lg"
+                        className="w-full h-[200px] object-cover rounded-lg"
                         layoutId={`movie-img-${movie.id}`}
                         src={
                           movie.poster_path
@@ -128,7 +124,7 @@ export default function MovieList({ movieResults }: { movieResults: Movie[] }) {
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ delay: 0.2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full mt-1"
+                    className="w-full mt-4"
                   >
                     <Button asChild variant="default" className="w-full">
                       <Link to={`/movie/${movie.id}`}>View Details</Link>

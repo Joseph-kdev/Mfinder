@@ -26,7 +26,7 @@ vi.mock('./MovieList', () => ({
 
 // Mock usehooks-ts
 vi.mock('usehooks-ts', () => ({
-  useDebounceValue: vi.fn((value) => [value]), // Return the value immediately for testing
+  useDebounceValue: vi.fn((value) => [value, value]), // Return the value immediately for testing
 }));
 
 const mockMovies: Movie[] = [
@@ -156,7 +156,9 @@ describe('SearchDialog Component', () => {
       fireEvent.change(searchInput, { target: { value: 'test' } });
       
       await waitFor(() => {
-        expect(screen.getByText('Searching...')).toBeInTheDocument();
+        // Check for the SyncLoader spinner instead of text
+        const spinnerContainer = screen.getByRole('dialog').querySelector('.flex.justify-center.items-center.py-12');
+        expect(spinnerContainer).toBeInTheDocument();
       });
     });
 

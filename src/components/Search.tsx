@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import MovieList from "./MovieList";
 import type { Movie } from "@/types";
-import '../global.css'
+import {SyncLoader} from 'react-spinners'
 
 interface SearchDialogProps {
   open: boolean;
@@ -46,7 +46,7 @@ export default function SearchDialog({
           <DialogTitle className="text-center">Search</DialogTitle>
         </DialogHeader>
 
-        <div className="relative max-w-4xl mx-auto px-4 2xl:p-0 w-full">
+        <div className="relative max-w-4xl mx-auto px-4 2xl:px-0 w-full">
           <SearchIcon className="absolute left-8 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
           <Input
             placeholder="Search for movie..."
@@ -60,7 +60,7 @@ export default function SearchDialog({
         <div className="flex-1 overflow-y-auto min-h-0">
           {isLoading && debouncedQuery && (
             <div className="flex justify-center items-center py-12">
-              <div className="text-muted-foreground">Searching...</div>
+                <SyncLoader size={20} />
             </div>
           )}
 
