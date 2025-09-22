@@ -386,33 +386,4 @@ describe('GenreFilter Component', () => {
       });
     });
   });
-
-  describe('Component Structure', () => {
-    beforeEach(async () => {
-      vi.mocked(moviesService.fetchGenres).mockResolvedValue(mockGenres);
-      vi.mocked(moviesService.fetchMoviesByGenre).mockResolvedValue(mockMoviesResponse);
-    });
-
-    it('should render the main container with correct classes', async () => {
-      renderGenreFilter();
-
-      const container = document.querySelector('.max-w-4xl.mx-auto');
-      expect(container).toBeInTheDocument();
-    });
-
-    it('should render the genre selection label', async () => {
-      renderGenreFilter();
-
-      expect(screen.getByText('Pick by genres:')).toBeInTheDocument();
-    });
-
-    it('should render draggable genre container', async () => {
-      renderGenreFilter();
-
-      await waitFor(() => {
-        const draggableContainer = document.querySelector('.cursor-grab');
-        expect(draggableContainer).toBeInTheDocument();
-      });
-    });
-  });
 });

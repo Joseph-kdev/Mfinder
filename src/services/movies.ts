@@ -1,3 +1,5 @@
+import type { MovieDetails } from "@/types";
+
 const baseUrl = "https://api.themoviedb.org/3";
 const header = {
   Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
@@ -49,7 +51,7 @@ export const fetchMoviesByGenre = async ({
     }
 
     const data = await response.json();
-    return data
+    return data;
   } catch (error) {
     console.log("Error fetching movies:", error);
     throw error;
@@ -68,7 +70,7 @@ export const searchMovies = async (query: string, page: number = 1) => {
         headers: header,
       }
     );
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -77,6 +79,49 @@ export const searchMovies = async (query: string, page: number = 1) => {
     return data;
   } catch (error) {
     console.log("Error searching movies:", error);
+    throw error;
+  }
+};
+
+export const fetchMovieDetails = async (id: string): Promise<MovieDetails> => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/movie/${id}?append_to_response=videos,credits`,
+      {
+        headers: header,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json()
+    console.log(data)
+    return data
+  } catch (error) {
+    console.log("Error searching movies:", error);
+    throw error;
+  }
+};
+
+export const fetchSimilarMovies = async (movieId: string, page: number = 1) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/movie/${movieId}/similar?page=${page}`,
+      {
+        headers: header,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Error fetching similar movies:", error);
     throw error;
   }
 };
