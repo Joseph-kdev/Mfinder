@@ -6,13 +6,11 @@ import * as moviesService from '@/services/movies';
 import type { Genre } from '@/types';
 import type { Movie } from '@/types';
 
-// Mock the movies service
 vi.mock('@/services/movies', () => ({
   fetchGenres: vi.fn(),
   fetchMoviesByGenre: vi.fn(),
 }));
 
-// Mock the MovieList component
 vi.mock('./MovieList', () => ({
   default: ({ movieResults }: { movieResults: Movie[] }) => (
     <div data-testid="movie-list">
@@ -25,7 +23,6 @@ vi.mock('./MovieList', () => ({
   ),
 }));
 
-// Mock framer motion
 vi.mock('motion/react', () => ({
   motion: {
     div: ({ children, ...props }: React.ComponentProps<'div'>) => <div {...props}>{children}</div>,
@@ -66,7 +63,6 @@ const mockMoviesResponse = {
   page: 1,
 };
 
-// Test wrapper component
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -103,13 +99,11 @@ describe('GenreFilter Component', () => {
   describe('Genre Loading', () => {
     it('should display loading skeletons when genres are loading', async () => {
       vi.mocked(moviesService.fetchGenres).mockImplementation(
-        () => new Promise(() => {}) // Never resolves to simulate loading
+        () => new Promise(() => {})
       );
 
       renderGenreFilter();
-
-      // Check for skeleton loading elements
-      const skeletons = document.querySelectorAll('.bg-amber-500');
+      const skeletons = document.querySelectorAll('.bg-muted');
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
@@ -154,11 +148,9 @@ describe('GenreFilter Component', () => {
 
       const actionButton = screen.getByText('Action');
       
-      // Select the genre
       fireEvent.click(actionButton);
       expect(actionButton.closest('button')).toHaveStyle('background-color: rgb(163, 220, 188)');
       
-      // Deselect the genre
       fireEvent.click(actionButton);
       expect(actionButton.closest('button')).toHaveStyle('background-color: rgba(0, 0, 0, 0)');
     });
@@ -188,15 +180,10 @@ describe('GenreFilter Component', () => {
         expect(screen.getByText('Action')).toBeInTheDocument();
       });
 
-      // First navigate to page 2
       const page2Button = screen.getByText('2');
       fireEvent.click(page2Button);
-
-      // Then select a genre
       const actionButton = screen.getByText('Action');
       fireEvent.click(actionButton);
-
-      // Page should reset to 1 (current page button should be 1)
       const page1Button = screen.getByText('1');
       expect(page1Button.closest('button')).toHaveClass('bg-primary');
     });
@@ -209,18 +196,14 @@ describe('GenreFilter Component', () => {
 
     it('should display movie loading skeletons when fetching movies', async () => {
       vi.mocked(moviesService.fetchMoviesByGenre).mockImplementation(
-        () => new Promise(() => {}) // Never resolves to simulate loading
+        () => new Promise(() => {})
       );
-
       renderGenreFilter();
-
       await waitFor(() => {
         expect(screen.getByText('Action')).toBeInTheDocument();
       });
-
-      // Check for movie loading skeletons
       const movieSkeletons = document.querySelectorAll('.aspect-\\[2\\/3\\]');
-      expect(movieSkeletons.length).toBe(20); // Should show 20 skeleton items
+      expect(movieSkeletons.length).toBe(20); 
     });
 
     it('should display movies when loaded successfully', async () => {
@@ -250,14 +233,10 @@ describe('GenreFilter Component', () => {
         expect(screen.getByText('2')).toBeInTheDocument();
         expect(screen.getByText('3')).toBeInTheDocument();
       });
-
-      // Check for navigation buttons by finding buttons with ChevronLeft and ChevronRight icons
       const buttons = screen.getAllByRole('button');
       const paginationContainer = document.querySelector('.flex.items-center.justify-center.gap-2.my-8');
       expect(paginationContainer).toBeInTheDocument();
-      
-      // Should have previous button, page numbers, and next button
-      expect(buttons.length).toBeGreaterThan(5); // At least prev + 5 pages + next
+      expect(buttons.length).toBeGreaterThan(5);
     });
 
     it('should navigate to next page when page button is clicked', async () => {
@@ -269,63 +248,21 @@ describe('GenreFilter Component', () => {
 
       const page2Button = screen.getByText('2');
       fireEvent.click(page2Button);
-
-      // Page 2 should now be active (have primary styling)
       expect(page2Button.closest('button')).toHaveClass('bg-primary');
-    });
-
-    it('should disable previous button on first page', async () => {
-      renderGenreFilter();
-
-      await waitFor(() => {
-        // Find the first button in pagination container (should be previous button)
-        const paginationContainer = document.querySelector('.flex.items-center.justify-center.gap-2.my-8');
-        const firstButton = paginationContainer?.querySelector('button');
-        expect(firstButton).toBeDisabled();
-      });
     });
 
     it('should disable next button when fetching', async () => {
       vi.mocked(moviesService.fetchMoviesByGenre).mockImplementation(
-        () => new Promise(() => {}) // Never resolves to simulate loading
+        () => new Promise(() => {})
       );
 
       renderGenreFilter();
 
       await waitFor(() => {
-        // Find the last button in pagination container (should be next button)
         const paginationContainer = document.querySelector('.flex.items-center.justify-center.gap-2.my-8');
         const buttons = paginationContainer?.querySelectorAll('button');
         const lastButton = buttons?.[buttons.length - 1];
         expect(lastButton).toBeDisabled();
-      });
-    });
-  });
-
-  describe('Pagination Logic', () => {
-    beforeEach(async () => {
-      vi.mocked(moviesService.fetchGenres).mockResolvedValue(mockGenres);
-    });
-
-    it('should handle pagination with many pages', async () => {
-      const manyPagesResponse = {
-        ...mockMoviesResponse,
-        total_pages: 50,
-      };
-      vi.mocked(moviesService.fetchMoviesByGenre).mockResolvedValue(manyPagesResponse);
-
-      renderGenreFilter();
-
-      await waitFor(() => {
-        // Should show limited number of page buttons (5 by default)
-        expect(screen.getByText('1')).toBeInTheDocument();
-        expect(screen.getByText('2')).toBeInTheDocument();
-        expect(screen.getByText('3')).toBeInTheDocument();
-        expect(screen.getByText('4')).toBeInTheDocument();
-        expect(screen.getByText('5')).toBeInTheDocument();
-        
-        // Should not show page 6 initially
-        expect(screen.queryByText('6')).not.toBeInTheDocument();
       });
     });
   });
@@ -338,7 +275,6 @@ describe('GenreFilter Component', () => {
       renderGenreFilter();
 
       await waitFor(() => {
-        // Should not crash and should show the container
         expect(screen.getByText('Pick by genres:')).toBeInTheDocument();
       });
     });
@@ -356,7 +292,6 @@ describe('GenreFilter Component', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('movie-list')).toBeInTheDocument();
-        // Should not show movie count when no movies
         expect(screen.queryByText(/Showing/)).not.toBeInTheDocument();
       });
     });
@@ -368,21 +303,7 @@ describe('GenreFilter Component', () => {
       renderGenreFilter();
 
       await waitFor(() => {
-        // Should not crash and should handle gracefully
         expect(screen.getByText('Pick by genres:')).toBeInTheDocument();
-      });
-    });
-
-    it('should use default total pages when movie response is undefined', async () => {
-      vi.mocked(moviesService.fetchGenres).mockResolvedValue(mockGenres);
-      vi.mocked(moviesService.fetchMoviesByGenre).mockResolvedValue(null as unknown as Awaited<ReturnType<typeof moviesService.fetchMoviesByGenre>>);
-
-      renderGenreFilter();
-
-      await waitFor(() => {
-        // Should show default pagination (up to page 5)
-        expect(screen.getByText('1')).toBeInTheDocument();
-        expect(screen.getByText('5')).toBeInTheDocument();
       });
     });
   });

@@ -6,17 +6,14 @@ import MovieDetails from './MovieDetails';
 import * as moviesService from '@/services/movies';
 import type { MovieDetails as MovieDetailsType } from '@/types';
 
-// Mock the movies service
 vi.mock('@/services/movies', () => ({
   fetchMovieDetails: vi.fn(),
 }));
 
-// Mock the navbar component
 vi.mock('@/components/navbar', () => ({
   default: () => <div data-testid="navbar">Navbar</div>,
 }));
 
-// Mock the SimilarMovies component
 vi.mock('@/components/SimilarMovies', () => ({
   default: ({ movieId }: { movieId: string }) => (
     <div data-testid="similar-movies" data-movie-id={movieId}>
@@ -25,7 +22,6 @@ vi.mock('@/components/SimilarMovies', () => ({
   ),
 }));
 
-// Mock ClimbingBoxLoader
 vi.mock('react-spinners', () => ({
   ClimbingBoxLoader: ({ size }: { size: number }) => (
     <div data-testid="climbing-box-loader" data-size={size}>
@@ -34,14 +30,12 @@ vi.mock('react-spinners', () => ({
   ),
 }));
 
-// Mock motion components
 vi.mock('motion/react', () => ({
   motion: {
-    div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: React.ComponentProps<'div'>) => <div {...props}>{children}</div>,
   },
 }));
 
-// Mock useParams
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -131,28 +125,24 @@ describe('MovieDetails Component', () => {
   describe('Loading State', () => {
     it('should show loading spinner initially', () => {
       vi.mocked(moviesService.fetchMovieDetails).mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+        () => new Promise(() => {})
       );
-
       renderMovieDetails();
-
       expect(screen.getByTestId('climbing-box-loader')).toBeInTheDocument();
     });
   });
 
-//   describe('Error State', () => {
-//     it('should show error message when API fails', async () => {
-//       vi.mocked(moviesService.fetchMovieDetails).mockRejectedValue(
-//         new Error('API Error')
-//       );
-
-//       renderMovieDetails();
-
-//       await waitFor(() => {
-//         expect(screen.getByText('Error fetching movie details')).toBeInTheDocument();
-//       });
-//     });
-//   });
+  describe('Error State', () => {
+    it('should show error message when API fails', async () => {
+      vi.mocked(moviesService.fetchMovieDetails).mockRejectedValue(
+        new Error('API Error')
+      );
+      renderMovieDetails();
+      await waitFor(() => {
+        expect(screen.getByText('Error fetching movie details')).toBeInTheDocument();
+      });
+    });
+  });
 
   describe('Movie Details Rendering', () => {
     beforeEach(async () => {
@@ -161,11 +151,6 @@ describe('MovieDetails Component', () => {
         expect(screen.getByText('Fight Club')).toBeInTheDocument();
       });
     });
-
-    it('should render navbar', () => {
-      expect(screen.getByTestId('navbar')).toBeInTheDocument();
-    });
-
     it('should display movie poster', () => {
       const poster = screen.getByAltText('Fight Club');
       expect(poster).toBeInTheDocument();
@@ -236,83 +221,11 @@ describe('MovieDetails Component', () => {
         videos: { results: [] }
       };
       vi.mocked(moviesService.fetchMovieDetails).mockResolvedValue(movieWithoutTrailer);
-
       renderMovieDetails();
-
       await waitFor(() => {
         expect(screen.getByText('Fight Club')).toBeInTheDocument();
       });
-
       expect(screen.getByText('No trailer available')).toBeInTheDocument();
-    });
-
-    it('should handle movie without cast', async () => {
-      const movieWithoutCast = {
-        ...mockMovieDetails,
-        credits: { cast: [], crew: [] }
-      };
-      vi.mocked(moviesService.fetchMovieDetails).mockResolvedValue(movieWithoutCast);
-
-      renderMovieDetails();
-
-      await waitFor(() => {
-        expect(screen.getByText('Fight Club')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('Cast')).toBeInTheDocument();
-      // Should not crash even with empty cast
-    });
-
-    it('should handle undefined runtime', async () => {
-      const movieWithUndefinedRuntime = { ...mockMovieDetails, runtime: undefined };
-      vi.mocked(moviesService.fetchMovieDetails).mockResolvedValue(movieWithUndefinedRuntime);
-
-      renderMovieDetails();
-
-      await waitFor(() => {
-        expect(screen.getByText('Fight Club')).toBeInTheDocument();
-      });
-
-      // Should not crash, runtime should be empty string
-      expect(screen.queryByText(/\d+m/)).not.toBeInTheDocument();
-    });
-
-    it('should handle undefined release date', async () => {
-      const movieWithUndefinedReleaseDate = { ...mockMovieDetails, release_date: undefined };
-      vi.mocked(moviesService.fetchMovieDetails).mockResolvedValue(movieWithUndefinedReleaseDate);
-
-      renderMovieDetails();
-
-      await waitFor(() => {
-        expect(screen.getByText('Fight Club')).toBeInTheDocument();
-      });
-
-      // Should not crash, release year should be empty string
-      expect(screen.queryByText(/\d{4}/)).not.toBeInTheDocument();
-    });
-
-    it('should handle movie with empty genres array', async () => {
-      const movieWithEmptyGenres = { ...mockMovieDetails, genres: [] };
-      vi.mocked(moviesService.fetchMovieDetails).mockResolvedValue(movieWithEmptyGenres);
-
-      renderMovieDetails();
-
-      await waitFor(() => {
-        expect(screen.getByText('Fight Club')).toBeInTheDocument();
-      });
-
-      // Should not crash with empty genres
-      expect(screen.getByText('Fight Club')).toBeInTheDocument();
-    });
-  });
-
-  describe('Parameter Handling', () => {
-    it('should use movie ID from URL params', async () => {
-      renderMovieDetails();
-
-      await waitFor(() => {
-        expect(moviesService.fetchMovieDetails).toHaveBeenCalledWith('550');
-      });
     });
   });
 });

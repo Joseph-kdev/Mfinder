@@ -29,7 +29,7 @@ export default function SearchDialog({
     queryKey: ["searchMovies", debouncedQuery],
     queryFn: () => searchMovies(debouncedQuery),
     enabled: !!debouncedQuery.trim(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, 
   });
 
   const movies: Movie[] = searchResults?.results || [];

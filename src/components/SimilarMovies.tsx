@@ -46,7 +46,6 @@ export default function SimilarMovies({ movieId }: SimilarMoviesProps) {
     );
   }
 
-  // Limit to first 10 similar movies for better performance and UI
   const limitedResults = similarMoviesData.results.slice(0, 10);
 
   return (
