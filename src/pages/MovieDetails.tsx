@@ -83,7 +83,7 @@ export default function MovieDetails() {
           <p>Error fetching movie details</p>
         ) : (
           <div className="px-4 mx-auto">
-            <div className="flex gap-4 w-full flex-col items-center md:flex-row md:items-start md:shadow-2xl md:gap-6 md:p-4">
+            <div className="flex gap-4 w-full flex-col items-center md:flex-row md:items-start md:shadow-2xl md:gap-6 md:p-4 rounded-lg">
               <div className="flex-shrink-0">
                 <img
                   src={
