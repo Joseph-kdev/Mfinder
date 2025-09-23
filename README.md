@@ -31,7 +31,7 @@ Mfinder is a modern, responsive movie recommendation web app built with React an
 - **Github Actions**
 
 ## Wireframes
-[View Figma Designs]([<figma-link>](https://www.figma.com/design/KiFWJ01dk7TOcAoHX1Vmvu/mfinder?node-id=0-1&t=f6EpBXCPEc4HxC00-1))
+[View Figma Designs](https://www.figma.com/design/KiFWJ01dk7TOcAoHX1Vmvu/mfinder?node-id=0-1&t=f6EpBXCPEc4HxC00-1)
 
 ## Project Structure
 
